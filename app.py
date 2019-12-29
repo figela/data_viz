@@ -14,20 +14,6 @@ df.atm = df.atm.astype("category")
 tpe_catv = set(df.catv)
 tpe_atm = set(df.atm)
 
-def new_df(dff, catv, atm):
-
-    """create the df to do the colored bar chart"""
-    # voir si un dict ne serait pas mieux pour les opt de filtrages
-    #x = set(dff.atm)
-    #col = set(dff.catv)
-    b = dff.groupby(["catv", "atm"]).sum()
-    l = b.columns.tolist()
-    l.remove("catu")
-    b = b.drop(columns=l)
-    c = pd.DataFrame(index=atm, columns=catv)
-    for el in c.columns.to_list():
-        c[el] = b.transpose()[el].transpose()
-    return c
 
 app = dash.Dash()
 server = app.server
@@ -129,7 +115,14 @@ def update_graph(hour_slider, my_check):
         dff = dff[dff['sexe']=='Autre']
     
     df_bar_col = dff[(dff["hrmn"] >= hour_slider[0]) & (dff["hrmn"] <= hour_slider[1])]
-    df_bar_col = new_df(df_bar_col, tpe_catv, tpe_atm)
+    b = df_bar_col.groupby(["catv", "atm"]).sum()
+    l = b.columns.tolist()
+    l.remove("catu")
+    b = b.drop(columns=l)
+    c = pd.DataFrame(index=list(tpe_atm), columns=list(tpe_catv))
+    for el in c.columns.to_list():
+        c[el] = b.transpose()[el].transpose()
+    df_bar_col = c    
     figure = dict(
         data=[
             go.Bar(x=df_bar_col.index, y=df_bar_col.Quad, name="Quad"),
