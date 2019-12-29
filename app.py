@@ -120,7 +120,7 @@ def update_graph(hour_slider, my_check):
     l.remove("catu")
     b = b.drop(columns=l)
     c = pd.DataFrame(index=list(tpe_atm), columns=list(tpe_catv))
-    for el in c.columns.to_list():
+    for el in tpe_catv:
         c[el] = b.transpose()[el].transpose()
     df_bar_col = c    
     figure = dict(
