@@ -4,22 +4,33 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 import pandas as pd
-from path import Path
-import dash_table
-import os
-import plotly.express as px
-
-from functions_app import new_df
 
 
-app = dash.Dash(__name__)
 
-pathfolder = os.getcwd()
+
 df = pd.read_csv('https://raw.githubusercontent.com/figela/data_viz/master/condu.csv',encoding='latin1', delimiter=';')
 df.catv = df.catv.astype("category")
 df.atm = df.atm.astype("category")
 tpe_catv = set(df.catv)
 tpe_atm = set(df.atm)
+
+def new_df(dff, catv, atm):
+
+    """create the df to do the colored bar chart"""
+    # voir si un dict ne serait pas mieux pour les opt de filtrages
+    #x = set(dff.atm)
+    #col = set(dff.catv)
+    b = dff.groupby(["catv", "atm"]).sum()
+    l = b.columns.tolist()
+    l.remove("catu")
+    b = b.drop(columns=l)
+    c = pd.DataFrame(index=atm, columns=catv)
+    for el in c.columns.to_list():
+        c[el] = b.transpose()[el].transpose()
+    return c
+
+app = dash.Dash()
+server = app.server
 
 app.config["suppress_callback_exceptions"] = True
 external_stylesheets = "https://raw.githubusercontent.com/figela/data_viz/master/bWLwgP.css"
@@ -32,10 +43,7 @@ app.layout = html.Div(
             [
                 html.Span("Dashboard Accidents", className="app-title"),
                 html.Div(id="hidden-div", style={"display": "none"}),
-                html.Div(
-                    html.Img(src="https://github.com/figela/data_viz/blob/master/UCAlogo.png", height="100%"),
-                    style={"float": "right", "height": "100%"},
-                ),
+               
             ],
             className="row header",
         ),
@@ -121,7 +129,6 @@ def update_graph(hour_slider, my_check):
         dff = dff[dff['sexe']=='Autre']
     
     df_bar_col = dff[(dff["hrmn"] >= hour_slider[0]) & (dff["hrmn"] <= hour_slider[1])]
-    size_f = len(df_bar_col)
     df_bar_col = new_df(df_bar_col, tpe_catv, tpe_atm)
     figure = dict(
         data=[
@@ -151,4 +158,4 @@ def update_graph(hour_slider, my_check):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server()
