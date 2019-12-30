@@ -14,24 +14,39 @@ df.atm = df.atm.astype("category")
 tpe_catv = set(df.catv)
 tpe_atm = set(df.atm)
 
+external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
-app = dash.Dash()
+app = dash.Dash(
+    __name__,
+    external_stylesheets=external_stylesheets)
+
 server = app.server
 
 app.config["suppress_callback_exceptions"] = True
-external_stylesheets = "https://raw.githubusercontent.com/figela/data_viz/master/bWLwgP.css"
+
 
 app.layout = html.Div(
     id="whole-container",
     children=[
         # header
-        html.Div(
+     html.Div(
             [
-                html.Span("Dashboard Accidents", className="app-title"),
+                html.Span("Dashboard Accidents",
+                style={'color':'#31a2ee',
+                        'font-size':'3rem',
+                        'letter-spacing':'-.1rem',
+                        'vertical-align':'middle'}),
+
                 html.Div(id="hidden-div", style={"display": "none"}),
-               
+              
             ],
-            className="row header",
+        
+            style={"margin":"0px",
+                "background-color":"#b9b5b0",
+                "height":"70px",
+                "color":"blue",
+                "padding-right":"2%",
+                "padding-left":"2%"}
         ),
         # graph
         html.Div(
@@ -151,4 +166,4 @@ def update_graph(hour_slider, my_check):
 
 
 if __name__ == "__main__":
-    app.run_server()
+    app.run_server(debug=True)
