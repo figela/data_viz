@@ -4,7 +4,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 import pandas as pd
-
+import plotly.figure_factory as ff
 
 
 
@@ -76,6 +76,15 @@ app.layout = html.Div(
                         "margin-right": "1px",
                         "margin-left": "50px",
                     },
+                ),
+                html.Div(
+                    [
+                        dcc.Graph(id='my-distri',
+                        style={'width':'400px'})
+                        
+                    ],
+                    className='four columns',
+                    style={'width':'500'}
                 ),
             ],
             style={"padding": "10px 0px 10px 0px", "display": ""},
@@ -164,6 +173,26 @@ def update_graph(hour_slider, my_check):
 
     return figure
 
+
+@app.callback(
+    Output('my-distri', 'figure'),
+    [Input('dropdown-dis', 'value')])
+
+def update_distri(value):
+
+    if value == []:
+        return {}
+    df_distri = df.mask(~df.catv.isin(value)).dropna(inplace=False)
+    figure = ff.create_distplot([df_distri['hrmn']], ['Accidents density'], colors=['coral'],
+                         bin_size=80, show_rug=False)
+    figure.update_layout(title_text='Accidents distribution',
+                    plot_bgcolor='white',
+                    showlegend=False,
+                     xaxis = dict(
+                        tickmode = 'array',
+                        tickvals = [600, 1200, 1800, 2400],
+                        ticktext = ['6am', '12am', '6pm', '12pm']))
+    return figure
 
 if __name__ == "__main__":
     app.run_server(debug=True)
