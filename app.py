@@ -179,7 +179,7 @@ def update_graph(hour_slider, my_check):
     [Input('dropdown-dis', 'value')])
 
 def update_distri(value):
-
+    
     if value == []:
         return {}
     df_distri = df.mask(~df.catv.isin(value)).dropna(inplace=False)
